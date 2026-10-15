@@ -1,6 +1,7 @@
 use tauri::{AppHandle, Manager};
 
 const MAIN: &str = "main";
+const CLOCK: &str = "clock";
 
 pub fn show_main_window(app: &AppHandle) {
     if let Some(window) = app.get_webview_window(MAIN) {
@@ -20,4 +21,34 @@ pub fn is_main_window_visible(app: &AppHandle) -> bool {
     app.get_webview_window(MAIN)
         .and_then(|window| window.is_visible().ok())
         .unwrap_or(false)
+}
+
+// ── Clock widget window ──────────────────────────────────────────────────────
+
+#[tauri::command]
+pub fn clock_show(app: AppHandle) {
+    if let Some(window) = app.get_webview_window(CLOCK) {
+        let _ = window.show();
+        let _ = window.set_focus();
+    }
+}
+
+#[tauri::command]
+pub fn clock_hide(app: AppHandle) {
+    if let Some(window) = app.get_webview_window(CLOCK) {
+        let _ = window.hide();
+    }
+}
+
+#[tauri::command]
+pub fn clock_toggle(app: AppHandle) {
+    if let Some(window) = app.get_webview_window(CLOCK) {
+        let visible = window.is_visible().unwrap_or(false);
+        if visible {
+            let _ = window.hide();
+        } else {
+            let _ = window.show();
+            let _ = window.set_focus();
+        }
+    }
 }

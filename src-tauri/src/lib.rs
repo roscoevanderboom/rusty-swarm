@@ -163,6 +163,9 @@ pub fn run() {
             server::api_server_stop,
             explorer::explorer_list_dir,
             explorer::explorer_list_drives,
+            window::clock_show,
+            window::clock_hide,
+            window::clock_toggle,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

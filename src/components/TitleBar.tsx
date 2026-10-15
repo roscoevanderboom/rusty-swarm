@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { isTauri } from "@tauri-apps/api/core";
+import { isTauri, invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useLocation, useNavigate } from "react-router-dom";
 import { hideMainWindow, getPlatform } from "../lib/native";
-import { LuArrowLeft, LuSettings } from "react-icons/lu";
+import { LuArrowLeft, LuSettings, LuClock } from "react-icons/lu";
 
 const win = isTauri() ? getCurrentWindow() : null;
 const platform = getPlatform();
@@ -71,6 +71,10 @@ export function TitleBar({ closeToTray, onOpenSettings }: TitleBarProps) {
     else void win.close();
   };
 
+  const toggleClock = () => {
+    if (isTauri()) void invoke("clock_toggle");
+  };
+
   // In the browser (vite dev without Tauri) render a minimal placeholder so
   // the layout offset is still present and the app doesn't feel broken.
   if (!win) {
@@ -89,6 +93,14 @@ export function TitleBar({ closeToTray, onOpenSettings }: TitleBarProps) {
           )}
         </div>
         <div className="titlebar-controls">
+          <button
+            className="titlebar-btn"
+            title="Toggle clock widget"
+            aria-label="Toggle clock widget"
+            onClick={toggleClock}
+          >
+            <LuClock size={14} />
+          </button>
           <button
             className="titlebar-btn"
             title="Settings"
@@ -117,6 +129,14 @@ export function TitleBar({ closeToTray, onOpenSettings }: TitleBarProps) {
         )}
       </div>
       <div className="titlebar-controls">
+        <button
+          className="titlebar-btn"
+          title="Toggle clock widget"
+          aria-label="Toggle clock widget"
+          onClick={toggleClock}
+        >
+          <LuClock size={14} />
+        </button>
         <button
           className="titlebar-btn"
           title="Settings"

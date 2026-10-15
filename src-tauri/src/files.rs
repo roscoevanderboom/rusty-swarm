@@ -35,8 +35,6 @@ use tokio_util::io::ReaderStream;
 
 use crate::server::{ApiError, AppState};
 
-pub const MAX_UPLOAD_BYTES: usize = 256 * 1024 * 1024;
-
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 struct Hosted {

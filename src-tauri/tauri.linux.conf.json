@@ -3,6 +3,7 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "decorations": true,
         "title": "rusty-hermes",
         "width": 1440,
@@ -11,6 +12,21 @@
         "visible": false,
         "minWidth": 900,
         "minHeight": 700
+      },
+      {
+        "label": "clock",
+        "url": "clock.html",
+        "title": "Clock",
+        "width": 260,
+        "height": 60,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "resizable": false,
+        "visible": false,
+        "x": 20,
+        "y": 20,
+        "skipTaskbar": true
       }
     ]
   }
