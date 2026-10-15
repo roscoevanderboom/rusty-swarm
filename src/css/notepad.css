@@ -1,0 +1,268 @@
+/*
+ * Notepad — terminal.shop aesthetic
+ *
+ * Near-black canvas, monospace layout, collapsible sidebar for note history.
+ * Mirrors the terminal design tokens under the np- prefix.
+ */
+
+/* ─── Tokens ──────────────────────────────────────────────────────────── */
+
+.np-page {
+  --np-bg:        #0d0e11;
+  --np-surface:   #111318;
+  --np-gutter:    #1a1c22;
+  --np-border:    #22252e;
+  --np-text:      #e2e4ea;
+  --np-comment:   #6a7490;
+  --np-num:       #3a3f52;
+  --np-num-sep:   #1e2128;
+  --np-accent:    var(--accent-color, #7c8fce);
+  --np-ok:        #4caf7d;
+  --np-err:       #e05c5c;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100dvh - var(--titlebar-height, 0px));
+  overflow: hidden;
+  background: var(--np-bg);
+  color: var(--np-text);
+  font-family: ui-monospace, "Cascadia Code", "JetBrains Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  font-variant-ligatures: none;
+}
+
+/* Light-mode overrides */
+:root[data-theme="light"] .np-page {
+  --np-bg:        #fafafa;
+  --np-surface:   #f3f4f6;
+  --np-gutter:    #eceef2;
+  --np-border:    #d8dbe3;
+  --np-text:      #1c2030;
+  --np-comment:   #8490b0;
+  --np-num:       #bcc1d0;
+  --np-num-sep:   #e0e3ea;
+  --np-ok:        #1a7f37;
+  --np-err:       #cf222e;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .np-page {
+    --np-bg:        #fafafa;
+    --np-surface:   #f3f4f6;
+    --np-gutter:    #eceef2;
+    --np-border:    #d8dbe3;
+    --np-text:      #1c2030;
+    --np-comment:   #8490b0;
+    --np-num:       #bcc1d0;
+    --np-num-sep:   #e0e3ea;
+    --np-ok:        #1a7f37;
+    --np-err:       #cf222e;
+  }
+}
+
+/* ─── Top toolbar ─────────────────────────────────────────────────────── */
+
+.np-bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  font-size: 0.72rem;
+  color: var(--np-comment);
+  background: var(--np-surface);
+  border-bottom: 1px solid var(--np-border);
+}
+
+.np-bar-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--np-text);
+  letter-spacing: 0.01em;
+}
+
+.np-spacer { flex: 1; }
+
+/* ─── Ghost buttons ───────────────────────────────────────────────────── */
+
+.np-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--np-comment);
+  background: transparent;
+  border: 1px solid var(--np-border);
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+
+.np-ghost:hover {
+  color: var(--np-text);
+  background: var(--np-gutter);
+}
+
+.np-ghost:active { transform: none; }
+
+/* ─── Saved indicator ─────────────────────────────────────────────────── */
+
+.np-saved {
+  font-size: 0.68rem;
+  color: var(--np-ok);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.np-saved--visible {
+  opacity: 1;
+}
+
+/* ─── Body (sidebar + editor) ─────────────────────────────────────────── */
+
+.np-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────────────────── */
+
+.np-sidebar {
+  width: 220px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  background: var(--np-gutter);
+  border-right: 1px solid var(--np-num-sep);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--np-border) transparent;
+  transition: width 0.2s ease, opacity 0.2s ease;
+}
+
+.np-sidebar--collapsed {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.np-sidebar-empty {
+  padding: 20px 14px;
+  font-size: 0.72rem;
+  color: var(--np-comment);
+  font-style: italic;
+}
+
+/* ─── Note list items ─────────────────────────────────────────────────── */
+
+.np-note-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--np-border);
+  border-left: 3px solid transparent;
+  transition: background 0.1s;
+}
+
+.np-note-item:hover {
+  background: var(--np-surface);
+}
+
+.np-note-item--active {
+  border-left: 3px solid var(--np-accent);
+  background: color-mix(in srgb, var(--np-accent) 8%, var(--np-bg));
+}
+
+.np-note-item--active:hover {
+  background: color-mix(in srgb, var(--np-accent) 12%, var(--np-bg));
+}
+
+.np-note-item-inner {
+  flex: 1;
+  min-width: 0;
+}
+
+.np-note-title {
+  font-size: 0.8rem;
+  color: var(--np-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.np-note-date {
+  font-size: 0.68rem;
+  color: var(--np-comment);
+  margin-top: 2px;
+}
+
+/* Delete button — hidden until hover */
+.np-note-delete {
+  flex: none;
+  padding: 2px 5px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.np-note-item:hover .np-note-delete {
+  opacity: 1;
+}
+
+/* ─── Editor area ─────────────────────────────────────────────────────── */
+
+.np-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.np-textarea {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  padding: 20px 24px;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--np-text);
+  caret-color: var(--np-text);
+  line-height: 1.7;
+  box-sizing: border-box;
+}
+
+.np-textarea::placeholder {
+  color: var(--np-num);
+}
+
+.np-textarea:focus-visible {
+  outline: none;
+}
+
+/* Empty state */
+.np-editor-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--np-comment);
+}
