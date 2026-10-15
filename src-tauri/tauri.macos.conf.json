@@ -1,0 +1,10 @@
+{
+  "identifier": "rusty-hermes",
+  "app": {
+    "windows": [
+      {
+        "decorations": true
+      }
+    ]
+  }
+}

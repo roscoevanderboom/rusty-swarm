@@ -1,0 +1,65 @@
+[package]
+name = "rusty-hermes"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "rusty_hermes_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = { version = "2", features = ["watch"] }
+tauri-plugin-http = "2"
+tauri-plugin-localhost = "2"
+tauri-plugin-log = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-persisted-scope = "2"
+tauri-plugin-process = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+tauri-plugin-store = "2"
+tauri-plugin-upload = "2"
+tauri-plugin-websocket = "2"
+keyring = "2"
+sysinfo = "0.39.6"
+walkdir = "2.5.0"
+axum = "0.8"
+tokio = { version = "1", features = ["net", "sync"] }
+tokio-util = "0.7.20"
+mime_guess = "2.0.5"
+zip = { version = "2", default-features = false, features = ["deflate"] }
+
+
+# Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+panic = "abort"
+strip = true
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-autostart = "2"
+tauri-plugin-cli = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-single-instance = "2"
+
+[target."cfg(windows)".dependencies]
+tauri-winrt-notification = "0.8.1"
+windows-sys = { version = "0.61", features = ["Win32_Storage_FileSystem", "Win32_Foundation"] }

@@ -1,0 +1,356 @@
+/*
+ * Terminal page. Self-contained (classes are prefixed `tm-`) and it only reads
+ * --accent-color, --font-main and --titlebar-height from your theme.
+ *
+ * Fit: the page is exactly the window height minus the titlebar and never scrolls.
+ * Only the output area scrolls, inside the terminal.
+ */
+
+.tm-page {
+  --tm-bg: #0b0d12;
+  --tm-surface: #10131a;
+  --tm-raised: #171b25;
+  --tm-border: #232836;
+  --tm-text: #d8dbe3;
+  --tm-muted: #7d8596;
+  --tm-ok: #3fb950;
+  --tm-err: #f85149;
+  --tm-warn: #d29922;
+  --tm-accent: var(--accent-color, #818cf8);
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100dvh - var(--titlebar-height, 0px));
+  padding: 0;
+  overflow: hidden;
+}
+
+:root[data-theme="light"] .tm-page {
+  --tm-bg: #fbfbfd;
+  --tm-surface: #f1f2f6;
+  --tm-raised: #ffffff;
+  --tm-border: #dfe2ea;
+  --tm-text: #1c2030;
+  --tm-muted: #6b7280;
+  --tm-ok: #1a7f37;
+  --tm-err: #cf222e;
+  --tm-warn: #9a6700;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .tm-page {
+    --tm-bg: #fbfbfd;
+    --tm-surface: #f1f2f6;
+    --tm-raised: #ffffff;
+    --tm-border: #dfe2ea;
+    --tm-text: #1c2030;
+    --tm-muted: #6b7280;
+    --tm-ok: #1a7f37;
+    --tm-err: #cf222e;
+    --tm-warn: #9a6700;
+  }
+}
+
+/* ---------- Shell frame ---------- */
+
+.tm-shell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family: ui-monospace, "Cascadia Code", "JetBrains Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  font-variant-ligatures: none;
+  color: var(--tm-text);
+  background: var(--tm-bg);
+}
+
+.tm-shell :focus-visible {
+  outline: 2px solid var(--tm-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Top bar ---------- */
+
+.tm-bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  font-family: var(--font-main, system-ui, sans-serif);
+  font-size: 0.75rem;
+  color: var(--tm-muted);
+  background: var(--tm-surface);
+  border-bottom: 1px solid var(--tm-border);
+}
+
+.tm-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--tm-text);
+}
+
+.tm-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--tm-ok);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tm-ok) 22%, transparent);
+}
+
+.tm-dot[data-busy="true"] {
+  background: var(--tm-warn);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tm-warn) 25%, transparent);
+  animation: tm-pulse 1s ease-in-out infinite;
+}
+
+.tm-chip {
+  padding: 2px 9px;
+  background: var(--tm-raised);
+  border: 1px solid var(--tm-border);
+  border-radius: 999px;
+}
+
+.tm-chip--path {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tm-spacer { flex: 1; }
+
+/* ---------- Buttons (beat the global button rules) ---------- */
+
+.tm-ghost {
+  padding: 3px 10px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--tm-muted);
+  background: transparent;
+  border: 1px solid var(--tm-border);
+  border-radius: 8px;
+}
+
+.tm-ghost:hover {
+  color: var(--tm-text);
+  background: var(--tm-raised);
+}
+
+.tm-ghost:active { transform: none; }
+
+/* ---------- Output ---------- */
+
+.tm-output-wrap {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.tm-output {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px 6px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--tm-border) transparent;
+}
+
+.tm-jump {
+  position: absolute;
+  right: 18px;
+  bottom: 12px;
+  background: var(--tm-raised);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* One block per command */
+
+.tm-block {
+  margin: 0 0 14px;
+  padding-left: 12px;
+  border-left: 2px solid var(--tm-border);
+}
+
+.tm-block[data-status="running"] { border-left-color: var(--tm-warn); }
+.tm-block[data-status="ok"] { border-left-color: color-mix(in srgb, var(--tm-ok) 55%, transparent); }
+.tm-block[data-status="error"] { border-left-color: var(--tm-err); }
+.tm-block[data-status="killed"] { border-left-color: var(--tm-muted); }
+
+.tm-block-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tm-block-cwd {
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--tm-accent);
+}
+
+.tm-chev { flex: none; color: var(--tm-muted); }
+
+.tm-block-cmd {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-weight: 600;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.tm-block-meta {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-main, system-ui, sans-serif);
+  font-size: 0.75rem;
+  color: var(--tm-muted);
+}
+
+.tm-copy {
+  padding: 0 8px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.tm-block:hover .tm-copy,
+.tm-copy:focus-visible { opacity: 1; }
+
+.tm-status { white-space: nowrap; }
+.tm-status--ok { color: var(--tm-ok); }
+.tm-status--error { color: var(--tm-err); }
+.tm-status--running { color: var(--tm-warn); }
+
+.tm-spin {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 4px;
+  border: 2px solid var(--tm-border);
+  border-top-color: var(--tm-warn);
+  border-radius: 50%;
+  animation: tm-spin 0.7s linear infinite;
+}
+
+.tm-out {
+  margin: 6px 0 0;
+  font: inherit;
+  line-height: 1.55;
+  word-break: break-word;
+  white-space: pre-wrap;
+  user-select: text;
+}
+
+.tm-l--stderr { color: var(--tm-err); }
+.tm-l--stdin { color: var(--tm-accent); }
+.tm-l--info { color: var(--tm-muted); font-style: italic; }
+
+/* Directory entries in ls output get a subtle highlight */
+.tm-out .tm-l--stdout:has(+ .tm-l--stdout) { }
+/* Dirs end with / — color them accent */
+.tm-l--stdout:where([data-dir="true"]) { color: var(--tm-accent); }
+
+/* ---------- Welcome (shown while empty) ---------- */
+
+.tm-welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 2px;
+  font-family: var(--font-main, system-ui, sans-serif);
+}
+
+.tm-welcome-title { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; }
+.tm-welcome-sub { color: var(--tm-muted); }
+.tm-quick { display: flex; flex-wrap: wrap; gap: 8px; }
+.tm-quick .tm-ghost { font-family: ui-monospace, Consolas, monospace; }
+
+.tm-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 0.75rem;
+  color: var(--tm-muted);
+}
+
+.tm-key {
+  padding: 1px 6px;
+  font: inherit;
+  color: var(--tm-text);
+  background: var(--tm-raised);
+  border: 1px solid var(--tm-border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+}
+
+/* ---------- Input, pinned to the bottom ---------- */
+
+.tm-input-row {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--tm-surface);
+  border-top: 1px solid var(--tm-border);
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.tm-input-row:focus-within {
+  border-top-color: color-mix(in srgb, var(--tm-accent) 60%, var(--tm-border));
+  box-shadow: 0 -1px 0 color-mix(in srgb, var(--tm-accent) 25%, transparent);
+}
+
+.tm-prompt {
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--tm-accent);
+}
+
+/* The global `input` rule adds a pill border, padding and a focus ring; strip them here. */
+.tm-input,
+.tm-input:focus {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  font: inherit;
+  color: var(--tm-text);
+  caret-color: var(--tm-accent);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+.tm-input::placeholder { color: var(--tm-muted); }
+
+/* ---------- Motion ---------- */
+
+@keyframes tm-spin { to { transform: rotate(360deg); } }
+@keyframes tm-pulse { 50% { opacity: 0.45; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .tm-spin, .tm-dot[data-busy="true"] { animation: none; }
+}

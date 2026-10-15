@@ -1,0 +1,22 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "windows-only",
+  "description": "Windows-specific permissions (drive letter fs scopes)",
+  "platforms": ["windows"],
+  "windows": ["main"],
+  "permissions": [
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "C:\\" },
+        { "path": "C:\\**" },
+        { "path": "D:\\" },
+        { "path": "D:\\**" },
+        { "path": "E:\\" },
+        { "path": "E:\\**" },
+        { "path": "F:\\" },
+        { "path": "F:\\**" }
+      ]
+    }
+  ]
+}

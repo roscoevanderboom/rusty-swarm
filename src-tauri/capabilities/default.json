@@ -1,0 +1,83 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Permissions for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:app:allow-set-app-theme",
+    "core:window:allow-show",
+    "core:window:allow-hide",
+    "core:window:allow-is-visible",
+    "core:window:allow-set-focus",
+    "core:window:allow-unminimize",
+    "core:window:allow-close",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-start-dragging",
+    "core:window:allow-destroy",
+    "core:webview:allow-set-webview-zoom",
+    "store:default",
+    "log:default",
+    "dialog:allow-open",
+    "dialog:allow-save",
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file",
+    "fs:allow-read-dir",
+    "fs:allow-stat",
+    "fs:allow-exists",
+    "fs:allow-watch",
+    "fs:allow-unwatch",
+    "clipboard-manager:allow-write-text",
+    "sql:allow-execute",
+    "sql:allow-load",
+    "sql:allow-select",
+    "sql:allow-close",
+    "notification:default",
+    "autostart:allow-enable",
+    "autostart:allow-disable",
+    "autostart:allow-is-enabled",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister",
+    {
+      "identifier": "http:default",
+      "allow": [
+        { "url": "https://www.dnd5eapi.co/*" }
+      ]
+    },
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "$HOME" },
+        { "path": "$HOME/**" },
+        { "path": "$DESKTOP" },
+        { "path": "$DESKTOP/**" },
+        { "path": "$DOWNLOAD" },
+        { "path": "$DOWNLOAD/**" },
+        { "path": "$DOCUMENT" },
+        { "path": "$DOCUMENT/**" },
+        { "path": "$PICTURE" },
+        { "path": "$PICTURE/**" },
+        { "path": "$AUDIO" },
+        { "path": "$AUDIO/**" },
+        { "path": "$VIDEO" },
+        { "path": "$VIDEO/**" },
+        { "path": "$PUBLIC" },
+        { "path": "$PUBLIC/**" },
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/**" },
+        { "path": "$APPLOG" },
+        { "path": "$APPLOG/**" }
+      ]
+    },
+    {
+      "identifier": "opener:allow-open-path",
+      "allow": [
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/**" },
+        { "path": "$APPLOG" },
+        { "path": "$APPLOG/**" }
+      ]
+    }
+  ]
+}

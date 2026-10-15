@@ -1,0 +1,35 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "terminal",
+  "description": "Lets the Terminal page run real shell commands. This is powerful: delete this file to remove all shell access.",
+  "windows": ["main"],
+  "permissions": [
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "powershell",
+          "cmd": "powershell",
+          "args": ["-NoProfile", "-NonInteractive", "-Command", { "validator": ".+" }]
+        },
+        { "name": "sh", "cmd": "sh", "args": ["-c", { "validator": ".+" }] }
+      ]
+    },
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "powershell",
+          "cmd": "powershell",
+          "args": ["-NoProfile", "-NonInteractive", "-Command", { "validator": ".+" }]
+        },
+        { "name": "sh", "cmd": "sh", "args": ["-c", { "validator": ".+" }] }
+      ]
+    },
+    "shell:allow-kill",
+    "shell:allow-stdin-write",
+    "cli:default",
+    "process:allow-exit",
+    "process:allow-restart"
+  ]
+}
