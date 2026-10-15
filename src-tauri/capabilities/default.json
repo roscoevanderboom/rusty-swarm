@@ -4,6 +4,8 @@
   "description": "Permissions for the main window",
   "windows": ["main"],
   "permissions": [
+    "websocket:allow-connect",
+    "websocket:allow-send",
     "core:default",
     "core:app:allow-set-app-theme",
     "core:window:allow-show",

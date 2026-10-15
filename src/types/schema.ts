@@ -10,6 +10,7 @@ export interface ApiPermissions {
   accent: boolean;
   uiScale: boolean;
   windowVisibility: boolean;
+  readMetrics: boolean;
 }
 
 /**
@@ -66,6 +67,7 @@ export const DEFAULT_SETTINGS: Settings = {
     accent: true,
     uiScale: false,
     windowVisibility: true,
+    readMetrics: false,
   },
 
   logLevel: "info",

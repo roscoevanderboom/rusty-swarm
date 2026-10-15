@@ -517,6 +517,11 @@ const API_ACTIONS: {
     title: "Show and hide the window",
     description: "Bring the window forward or hide it.",
   },
+  {
+    key: "readMetrics",
+    title: "Read system metrics",
+    description: "Stream CPU, memory, disk and network data over WebSocket.",
+  },
 ];
 
 const STATUS_LABEL: Record<ServerStatus["state"], string> = {

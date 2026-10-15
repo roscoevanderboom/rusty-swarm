@@ -6,6 +6,7 @@ import { Terminal } from "./pages/Terminal";
 import { Notepad } from "./pages/Notepad";
 import { Kanban } from "./pages/Kanban";
 import { HttpClient } from "./pages/HttpClient";
+import { SystemMonitor } from "./pages/SystemMonitor";
 import { useApiServer, useLogs, useSettings, useSettingsEffects } from "./hooks";
 import { SettingsModal } from "./components/SettingsModal";
 import { TitleBar } from "./components/TitleBar";
@@ -52,6 +53,7 @@ function App() {
         <Route path="/notepad" element={<Notepad />} />
         <Route path="/kanban" element={<Kanban />} />
         <Route path="/http" element={<HttpClient />} />
+        <Route path="/monitor" element={<SystemMonitor />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {settingsOpen && (

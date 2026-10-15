@@ -32,7 +32,7 @@ use axum::{
 };
 use serde::Deserialize;
 use serde_json::{Map, Value, json};
-use tauri::{AppHandle, Wry};
+use tauri::{AppHandle, Manager, Wry};
 use tauri_plugin_log::log::{error, info};
 use tauri_plugin_store::{Store, StoreExt};
 use tokio::{
@@ -40,7 +40,7 @@ use tokio::{
     sync::{Mutex, oneshot},
 };
 
-use crate::{files, window};
+use crate::{files, metrics, window};
 
 const STORE_FILE: &str = "settings.json";
 
@@ -103,8 +103,9 @@ pub async fn api_server_start(
 
     let notify_app = app.clone();
     let state = AppState {
-        app,
+        metrics: app.state::<metrics::MetricsState>().inner().clone(),
         api_key: Arc::from(config.api_key.trim()),
+        app,
     };
     let (shutdown, shutdown_rx) = oneshot::channel::<()>();
 
@@ -153,8 +154,9 @@ pub async fn api_server_stop(
 
 #[derive(Clone)]
 pub(crate) struct AppState {
-    app: AppHandle,
-    api_key: Arc<str>,
+    pub(crate) app: AppHandle,
+    pub(crate) api_key: Arc<str>,
+    pub(crate) metrics: metrics::MetricsState,
 }
 
 impl AppState {
@@ -164,7 +166,7 @@ impl AppState {
             .map_err(|e| ApiError::internal(format!("Could not open settings: {e}")))
     }
 
-    fn require(&self, permission: &str) -> Result<(), ApiError> {
+    pub(crate) fn require(&self, permission: &str) -> Result<(), ApiError> {
         let store = self.store()?;
         if allowed(&store, permission) {
             Ok(())
@@ -181,6 +183,7 @@ fn router(state: AppState) -> Router {
         .route("/v1/settings", get(get_settings).patch(patch_settings))
         .route("/v1/window/show", post(show_window))
         .route("/v1/window/hide", post(hide_window))
+        .route("/v1/ws/metrics", get(metrics::ws_metrics))
         .route("/files", get(files::list_root))
         .route(
             "/files/{*path}",

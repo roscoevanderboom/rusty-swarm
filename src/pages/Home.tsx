@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useNavigate } from "react-router-dom";
-import { LuFolderOpen, LuNotebookPen, LuSquareTerminal, LuKanban, LuNetwork } from "react-icons/lu";
+import { LuFolderOpen, LuNotebookPen, LuSquareTerminal, LuKanban, LuNetwork, LuActivity } from "react-icons/lu";
 
 const APPS = [
   { id: "explorer", label: "File Explorer", Icon: LuFolderOpen,      path: "/explorer" },
@@ -10,6 +10,7 @@ const APPS = [
   { id: "notepad",  label: "Notepad",        Icon: LuNotebookPen,     path: "/notepad"  },
   { id: "kanban",   label: "Task Board",     Icon: LuKanban,          path: "/kanban"   },
   { id: "http",     label: "HTTP Client",    Icon: LuNetwork,         path: "/http"     },
+  { id: "monitor",  label: "System Monitor", Icon: LuActivity,        path: "/monitor"  },
 ];
 
 export function Home() {

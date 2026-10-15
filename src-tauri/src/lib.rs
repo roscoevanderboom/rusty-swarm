@@ -1,5 +1,6 @@
 mod explorer;
 mod files;
+mod metrics;
 mod secrets;
 mod server;
 mod tray;
@@ -139,6 +140,7 @@ pub fn run() {
         // Keep last: it restores fs and asset scopes saved by the plugins above.
         .plugin(tauri_plugin_persisted_scope::init())
         .manage(server::ApiServer::default())
+        .manage(metrics::MetricsState::default())
         .setup(|app| {
             // Desktop-only plugins are added here so mobile builds still compile.
             #[cfg(desktop)]

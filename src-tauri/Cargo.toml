@@ -39,8 +39,8 @@ tauri-plugin-websocket = "2"
 keyring = "2"
 sysinfo = "0.39.6"
 walkdir = "2.5.0"
-axum = "0.8"
-tokio = { version = "1", features = ["net", "sync"] }
+axum = { version = "0.8", features = ["ws"] }
+tokio = { version = "1", features = ["net", "sync", "time"] }
 tokio-util = "0.7.20"
 mime_guess = "2.0.5"
 zip = { version = "2", default-features = false, features = ["deflate"] }
