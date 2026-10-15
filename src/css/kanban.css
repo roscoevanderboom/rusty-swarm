@@ -84,6 +84,8 @@
   overflow-y: hidden;
   align-items: stretch;
   min-height: 0;
+  /* Center columns without creating phantom overflow */
+  justify-content: safe center;
 }
 
 /* ── Column ── */

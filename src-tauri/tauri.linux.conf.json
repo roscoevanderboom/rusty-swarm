@@ -3,7 +3,14 @@
   "app": {
     "windows": [
       {
-        "decorations": true
+        "decorations": true,
+        "title": "rusty-hermes",
+        "width": 1440,
+        "height": 900,
+        "center": true,
+        "visible": false,
+        "minWidth": 900,
+        "minHeight": 700
       }
     ]
   }

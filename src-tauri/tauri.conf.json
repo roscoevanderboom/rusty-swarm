@@ -10,24 +10,13 @@
     "frontendDist": "../dist"
   },
   "app": {
-      "windows": [
-        {
-          "title": "rusty-hermes",
-          "width": 1440,
-          "height": 900,
-          "center": true,
-          "visible": false,
-          "minWidth": 900,
-          "minHeight": 700
-        }
-      ],
-      "security": {
-        "csp": null
-      }
-    },
-    "plugins": {
-      "cli": {}
-    },
+    "security": {
+      "csp": null
+    }
+  },
+  "plugins": {
+    "cli": {}
+  },
   "bundle": {
     "active": true,
     "targets": "all",
