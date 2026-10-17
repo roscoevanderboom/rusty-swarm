@@ -4,11 +4,9 @@ import { isTauri } from "@tauri-apps/api/core";
 export type AppearanceMode = "light" | "dark" | "system";
 
 const STORAGE_KEY = "rusty-swarm.appearance-mode";
-const LEGACY_STORAGE_KEY = "rusty-hermes.appearance-mode";
 
 export function getAppearanceMode(): AppearanceMode {
-  const saved = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
-  if (saved !== null) localStorage.setItem(STORAGE_KEY, saved);
+  const saved = localStorage.getItem(STORAGE_KEY);
   return saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
 }
 

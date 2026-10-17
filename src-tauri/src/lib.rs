@@ -1,4 +1,3 @@
-mod explorer;
 mod files;
 mod metrics;
 mod secrets;
@@ -8,12 +7,6 @@ mod window;
 
 use tauri_plugin_log::{Target, TargetKind, log::LevelFilter};
 
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
 /// Windows drops toasts from unregistered app IDs, so register one under HKCU (no admin needed).
 #[cfg(windows)]
 fn register_aumid() {
@@ -21,13 +14,13 @@ fn register_aumid() {
     let _ = std::process::Command::new("reg")
         .args([
             "add",
-            r"HKCU\Software\Classes\AppUserModelId\rusty-hermes",
+            r"HKCU\Software\Classes\AppUserModelId\rusty-swarm",
             "/v",
             "DisplayName",
             "/t",
             "REG_SZ",
             "/d",
-            "rusty-hermes",
+            "rusty-swarm",
             "/f",
         ])
         .creation_flags(0x0800_0000) // CREATE_NO_WINDOW
@@ -156,18 +149,12 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            greet,
             send_notification,
             secrets::get_api_key,
             secrets::set_api_key,
             secrets::get_local_ip,
             server::api_server_start,
             server::api_server_stop,
-            explorer::explorer_list_dir,
-            explorer::explorer_list_drives,
-            window::clock_show,
-            window::clock_hide,
-            window::clock_toggle,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

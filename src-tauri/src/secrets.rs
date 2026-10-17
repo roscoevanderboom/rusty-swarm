@@ -9,7 +9,7 @@
 
 use keyring::Entry;
 
-const SERVICE: &str = "rusty-hermes";
+const SERVICE: &str = "rusty-swarm";
 const USER: &str = "api-key";
 
 fn entry() -> Result<Entry, String> {

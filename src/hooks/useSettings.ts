@@ -7,7 +7,6 @@ import { DEFAULT_SETTINGS, type SetSetting, type SettingKey, type Settings } fro
 
 const STORE_FILE = "settings.json";
 const LOCAL_KEY = "rusty-swarm.settings";
-const LEGACY_LOCAL_KEY = "rusty-hermes.settings";
 const KEYS = Object.keys(DEFAULT_SETTINGS) as SettingKey[];
 
 /** Where settings live. Tauri store in the app, localStorage when running `vite` in a browser. */
@@ -42,12 +41,7 @@ async function openTauriBackend(): Promise<Backend> {
 function openLocalBackend(): Backend {
   const readAll = (): Record<string, unknown> => {
     try {
-      const saved = localStorage.getItem(LOCAL_KEY);
-      if (saved !== null) return JSON.parse(saved);
-      const legacy = localStorage.getItem(LEGACY_LOCAL_KEY);
-      if (legacy === null) return {};
-      localStorage.setItem(LOCAL_KEY, legacy);
-      return JSON.parse(legacy);
+      return JSON.parse(localStorage.getItem(LOCAL_KEY) ?? "{}");
     } catch {
       return {};
     }

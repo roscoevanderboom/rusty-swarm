@@ -742,7 +742,7 @@ function ServerPanel(
       <Group title="Try it">
         <Row
           title="Example request"
-          description="Changes the theme from a terminal."
+          description="Changes the theme used by the app."
           stack
         >
           <pre className="st-code">{curl}</pre>

@@ -88,7 +88,7 @@ export function parseSettingsFile(text: string): ImportResult {
     throw new Error("Not a rusty-swarm settings file.");
 
   const root = raw as Record<string, unknown>;
-  if (root.app !== "rusty-swarm" && root.app !== "rusty-hermes")
+  if (root.app !== "rusty-swarm")
     throw new Error("Not a rusty-swarm settings file.");
 
   const body = root.settings;

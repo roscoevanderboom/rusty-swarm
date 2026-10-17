@@ -38,7 +38,6 @@ tauri-plugin-upload = "2"
 tauri-plugin-websocket = "2"
 keyring = "2"
 sysinfo = "0.39.6"
-walkdir = "2.5.0"
 axum = { version = "0.8", features = ["ws"] }
 tokio = { version = "1", features = ["net", "sync", "time"] }
 tokio-util = "0.7.20"
@@ -62,4 +61,3 @@ tauri-plugin-single-instance = "2"
 
 [target."cfg(windows)".dependencies]
 tauri-winrt-notification = "0.8.1"
-windows-sys = { version = "0.61", features = ["Win32_Storage_FileSystem", "Win32_Foundation"] }

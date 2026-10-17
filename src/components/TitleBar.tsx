@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { isTauri, invoke } from "@tauri-apps/api/core";
+import { isTauri } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { useLocation, useNavigate } from "react-router-dom";
 import { hideMainWindow, getPlatform } from "../lib/native";
-import { LuArrowLeft, LuSettings, LuClock } from "react-icons/lu";
+import { LuSettings } from "react-icons/lu";
 
 const win = isTauri() ? getCurrentWindow() : null;
 const platform = getPlatform();
@@ -51,10 +50,6 @@ export interface TitleBarProps {
 
 export function TitleBar({ closeToTray, onOpenSettings }: TitleBarProps) {
   const [maximized, setMaximized] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
-  const showBack = location.pathname !== "/";
-
   useEffect(() => {
     if (!win) return;
     let unlisten: (() => void) | undefined;
@@ -71,36 +66,13 @@ export function TitleBar({ closeToTray, onOpenSettings }: TitleBarProps) {
     else void win.close();
   };
 
-  const toggleClock = () => {
-    if (isTauri()) void invoke("clock_toggle");
-  };
-
   // In the browser (vite dev without Tauri) render a minimal placeholder so
   // the layout offset is still present and the app doesn't feel broken.
   if (!win) {
     return (
       <div className="titlebar" aria-label="Window titlebar">
-        <div className="titlebar-drag">
-          {showBack && (
-            <button
-              className="titlebar-btn titlebar-btn--back"
-              title="Back to home"
-              aria-label="Back to home"
-              onClick={() => navigate("/")}
-            >
-              <LuArrowLeft size={14} />
-            </button>
-          )}
-        </div>
+        <div className="titlebar-drag" />
         <div className="titlebar-controls">
-          <button
-            className="titlebar-btn"
-            title="Toggle clock widget"
-            aria-label="Toggle clock widget"
-            onClick={toggleClock}
-          >
-            <LuClock size={14} />
-          </button>
           <button
             className="titlebar-btn"
             title="Settings"
@@ -116,27 +88,8 @@ export function TitleBar({ closeToTray, onOpenSettings }: TitleBarProps) {
 
   return (
     <div className="titlebar" aria-label="Window titlebar">
-      <div className="titlebar-drag" data-tauri-drag-region>
-        {showBack && (
-          <button
-            className="titlebar-btn titlebar-btn--back"
-            title="Back to home"
-            aria-label="Back to home"
-            onClick={() => navigate("/")}
-          >
-            <LuArrowLeft size={14} />
-          </button>
-        )}
-      </div>
+      <div className="titlebar-drag" data-tauri-drag-region />
       <div className="titlebar-controls">
-        <button
-          className="titlebar-btn"
-          title="Toggle clock widget"
-          aria-label="Toggle clock widget"
-          onClick={toggleClock}
-        >
-          <LuClock size={14} />
-        </button>
         <button
           className="titlebar-btn"
           title="Settings"

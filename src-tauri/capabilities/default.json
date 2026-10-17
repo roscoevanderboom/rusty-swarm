@@ -4,8 +4,6 @@
   "description": "Permissions for the main window",
   "windows": ["main"],
   "permissions": [
-    "websocket:allow-connect",
-    "websocket:allow-send",
     "core:default",
     "core:app:allow-set-app-theme",
     "core:window:allow-show",
@@ -31,22 +29,12 @@
     "fs:allow-watch",
     "fs:allow-unwatch",
     "clipboard-manager:allow-write-text",
-    "sql:allow-execute",
-    "sql:allow-load",
-    "sql:allow-select",
-    "sql:allow-close",
     "notification:default",
     "autostart:allow-enable",
     "autostart:allow-disable",
     "autostart:allow-is-enabled",
     "global-shortcut:allow-register",
     "global-shortcut:allow-unregister",
-    {
-      "identifier": "http:default",
-      "allow": [
-        { "url": "https://www.dnd5eapi.co/*" }
-      ]
-    },
     {
       "identifier": "fs:scope",
       "allow": [
