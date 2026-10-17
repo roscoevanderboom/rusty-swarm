@@ -26,7 +26,7 @@ function App() {
   const server = useApiServer(settings, ready);
   const { logs, clearLogs } = useLogs();
 
-  // Open settings with Ctrl+, / Cmd+, on macOS and Linux (no titlebar gear).
+  // Keep the keyboard shortcut available alongside the visible Settings button.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === ",") {
@@ -40,10 +40,9 @@ function App() {
 
   return (
     <div>
-      {/* Custom titlebar: Windows-only (decorations: false).
-          On macOS and Linux the native window chrome is used (decorations: true).
-          On those platforms, open settings with Ctrl+, / Cmd+,. */}
-      {(platform === "windows" || platform === "browser") && (
+      {/* Windows uses custom window chrome; Linux keeps native decorations and
+          gets an in-app toolbar for navigation and settings. */}
+      {(platform === "windows" || platform === "linux" || platform === "browser") && (
         <TitleBar closeToTray={settings.closeToTray} onOpenSettings={() => setSettingsOpen(true)} />
       )}
       <Routes>

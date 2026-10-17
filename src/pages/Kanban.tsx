@@ -9,6 +9,7 @@ import {
   LuX,
 } from "react-icons/lu";
 import "../css/kanban.css";
+import { singleFlight } from "../lib/singleFlight";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -91,6 +92,36 @@ function draftFromCard(card: Card): CardDraft {
   };
 }
 
+// React StrictMode replays effects during development. Share the first empty-DB
+// seed operation so overlapping effect setups cannot insert the defaults twice.
+const seedDatabaseIfEmpty = singleFlight(async (db: Database) => {
+  const existing = await db.select<Column[]>("SELECT * FROM kb_columns");
+  if (existing.length !== 0) return;
+
+  for (const col of DEFAULT_COLUMNS) {
+    await db.execute(
+      "INSERT INTO kb_columns (name, color, position) VALUES (?, ?, ?)",
+      [col.name, col.color, col.position],
+    );
+  }
+  const cols = await db.select<Column[]>("SELECT * FROM kb_columns ORDER BY position");
+  if (cols.length < 4) return;
+
+  const seed: [number, string, string, Priority, number][] = [
+    [cols[0].id, "Research SQLite in Tauri", "Explore tauri-plugin-sql and understand its API surface.", "high", 0],
+    [cols[0].id, "Design the board UI", "Sketch the Kanban layout — columns, cards, modal.", "medium", 1],
+    [cols[1].id, "Build Kanban component", "Implement the board page with full CRUD wired to SQLite.", "high", 0],
+    [cols[2].id, "Review drag-and-drop UX", "Test card movement between columns.", "low", 0],
+    [cols[3].id, "Plugin wired to app", "tauri-plugin-sql registered, permissions set.", "low", 0],
+  ];
+  for (const [columnId, title, description, priority, position] of seed) {
+    await db.execute(
+      "INSERT INTO kb_cards (column_id, title, description, priority, position) VALUES (?, ?, ?, ?, ?)",
+      [columnId, title, description, priority, position],
+    );
+  }
+});
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function Kanban() {
@@ -134,63 +165,7 @@ export function Kanban() {
           )
         `);
 
-        const existing = await db.select<Column[]>("SELECT * FROM kb_columns");
-        if (existing.length === 0) {
-          for (const col of DEFAULT_COLUMNS) {
-            await db.execute(
-              "INSERT INTO kb_columns (name, color, position) VALUES (?, ?, ?)",
-              [col.name, col.color, col.position],
-            );
-          }
-          const cols = await db.select<Column[]>(
-            "SELECT * FROM kb_columns ORDER BY position",
-          );
-          if (cols.length >= 4) {
-            const seed: [number, string, string, Priority, number][] = [
-              [
-                cols[0].id,
-                "Research SQLite in Tauri",
-                "Explore tauri-plugin-sql and understand its API surface.",
-                "high",
-                0,
-              ],
-              [
-                cols[0].id,
-                "Design the board UI",
-                "Sketch the Kanban layout — columns, cards, modal.",
-                "medium",
-                1,
-              ],
-              [
-                cols[1].id,
-                "Build Kanban component",
-                "Implement the board page with full CRUD wired to SQLite.",
-                "high",
-                0,
-              ],
-              [
-                cols[2].id,
-                "Review drag-and-drop UX",
-                "Test card movement between columns.",
-                "low",
-                0,
-              ],
-              [
-                cols[3].id,
-                "Plugin wired to app",
-                "tauri-plugin-sql registered, permissions set.",
-                "low",
-                0,
-              ],
-            ];
-            for (const [cid, title, desc, prio, pos] of seed) {
-              await db.execute(
-                "INSERT INTO kb_cards (column_id, title, description, priority, position) VALUES (?, ?, ?, ?, ?)",
-                [cid, title, desc, prio, pos],
-              );
-            }
-          }
-        }
+        await seedDatabaseIfEmpty(db);
 
         if (!cancelled) {
           setReady(true);

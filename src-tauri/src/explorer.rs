@@ -4,6 +4,7 @@
 //!   explorer_list_dir(path)  → Vec<DirEntry>
 //!   explorer_list_drives()   → Vec<DriveInfo>
 
+use std::collections::HashMap;
 use std::time::UNIX_EPOCH;
 
 use serde::Serialize;
@@ -117,29 +118,53 @@ fn list_drives_unix() -> Result<Vec<DriveInfo>, String> {
     use sysinfo::Disks;
 
     let disks = Disks::new_with_refreshed_list();
-    let mut drives: Vec<DriveInfo> = disks
-        .iter()
-        .filter_map(|disk| {
-            let mount = disk.mount_point().to_string_lossy().into_owned();
-            // Skip pseudo-filesystems / snap mounts / boot partitions etc.
-            if mount.starts_with("/snap/")
-                || mount.starts_with("/boot")
-                || mount.starts_with("/sys")
-                || mount.starts_with("/proc")
-                || mount.starts_with("/dev")
-                || mount.starts_with("/run")
-            {
-                return None;
-            }
-            let name = disk.name().to_string_lossy().into_owned();
-            let label = if name.is_empty() || name == mount {
+    let mut by_device: HashMap<String, DriveInfo> = HashMap::new();
+
+    for disk in disks.iter() {
+        let mount = disk.mount_point().to_string_lossy().into_owned();
+
+        // Skip pseudo-filesystems and ephemeral mounts that are not actual local drives.
+        if mount.starts_with("/snap/")
+            || mount.starts_with("/boot")
+            || mount.starts_with("/sys")
+            || mount.starts_with("/proc")
+            || mount.starts_with("/dev")
+            || mount.starts_with("/run")
+            || mount.starts_with("/tmp")
+            || mount.starts_with("/var/tmp")
+            || mount == "/etc"
+            || mount == "/mnt"
+        {
+            continue;
+        }
+
+        let device = disk.name().to_string_lossy().into_owned();
+        let key = if device.is_empty() { mount.clone() } else { device.clone() };
+        let candidate = DriveInfo {
+            label: if device.is_empty() || device == mount {
                 mount.clone()
             } else {
-                format!("{name} ({mount})")
-            };
-            Some(DriveInfo { label, path: mount })
-        })
-        .collect();
+                format!("{device} ({mount})")
+            },
+            path: mount.clone(),
+        };
+
+        match by_device.entry(key) {
+            std::collections::hash_map::Entry::Vacant(entry) => {
+                entry.insert(candidate);
+            }
+            std::collections::hash_map::Entry::Occupied(mut entry) => {
+                let existing = entry.get();
+                let prefer_new = existing.path != "/" && mount == "/"
+                    || (existing.path != "/" && mount.starts_with("/home") && !existing.path.starts_with("/home"));
+                if prefer_new {
+                    entry.insert(candidate);
+                }
+            }
+        }
+    }
+
+    let mut drives: Vec<DriveInfo> = by_device.into_values().collect();
 
     // Always ensure root is present, even if sysinfo didn't surface it.
     if drives.is_empty() || !drives.iter().any(|d| d.path == "/") {
@@ -152,7 +177,7 @@ fn list_drives_unix() -> Result<Vec<DriveInfo>, String> {
         );
     }
 
-    // Sort: root first, then alphabetical.
+    // Sort: root first, then alphabetical. De-duplicate multiple partitions from the same disk.
     drives.sort_by(|a, b| {
         if a.path == "/" {
             std::cmp::Ordering::Less

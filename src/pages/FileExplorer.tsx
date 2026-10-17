@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import {
   homeDir,
@@ -30,7 +30,10 @@ import {
   LuVideo,
   LuHouse,
   LuLoaderCircle,
+  LuEye,
+  LuEyeOff,
 } from "react-icons/lu";
+import { joinPath, normalizePath, parentPath, pathSegments } from "../lib/path";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -58,59 +61,6 @@ interface DriveInfo {
 }
 
 // ── Path utilities ─────────────────────────────────────────────────────────────
-
-/**
- * Normalise a path so the Tauri fs plugin is happy:
- *   – forward slashes → backslashes on Windows
- *   – trailing backslash preserved only for drive roots (C:\)
- *   – no double slashes
- */
-function normPath(p: string): string {
-  // Replace all forward slashes with backslashes
-  let s = p.replace(/\//g, "\\");
-  // Collapse consecutive separators
-  s = s.replace(/\\{2,}/g, "\\");
-  // Drive root: always keep trailing backslash
-  if (/^[A-Za-z]:\\$/.test(s)) return s;
-  // Everything else: strip trailing backslash
-  s = s.replace(/\\$/, "");
-  return s;
-}
-
-function joinPath(base: string, name: string): string {
-  const b = normPath(base);
-  // Drive root already ends with backslash
-  if (/^[A-Za-z]:\\$/.test(b)) return b + name;
-  return b + "\\" + name;
-}
-
-function parentPath(p: string): string | null {
-  const s = normPath(p);
-  if (/^[A-Za-z]:\\$/.test(s)) return null; // already a drive root
-  const last = s.lastIndexOf("\\");
-  if (last <= 0) return null;
-  const parent = s.slice(0, last);
-  // e.g. "C:" → "C:\"
-  if (/^[A-Za-z]:$/.test(parent)) return parent + "\\";
-  return parent;
-}
-
-function pathSegments(p: string): { label: string; path: string }[] {
-  const s = normPath(p);
-  const parts = s.split("\\").filter(Boolean);
-  const result: { label: string; path: string }[] = [];
-  let acc = "";
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
-    if (i === 0 && part.endsWith(":")) {
-      acc = part + "\\";
-    } else {
-      acc = acc.replace(/\\$/, "") + "\\" + part;
-    }
-    result.push({ label: i === 0 ? acc : part, path: normPath(acc) });
-  }
-  return result;
-}
 
 /** Format bytes into human-readable size */
 function formatSize(bytes: number): string {
@@ -180,6 +130,7 @@ export function FileExplorer() {
   const [view, setView]               = useState<ViewMode>("list");
   const [selected, setSelected]       = useState<string | null>(null);
   const [activeSidebar, setActiveSidebar] = useState("home");
+  const [showHidden, setShowHidden]   = useState(false);
 
   // ---- Watcher cleanup ref ----
   const unwatchRef = useRef<UnwatchFn | null>(null);
@@ -201,7 +152,7 @@ export function FileExplorer() {
       setFavorites((prev) =>
         prev.map((item, i) => ({
           ...item,
-          path: resolved[i].status === "fulfilled" ? normPath(resolved[i].value) : item.path,
+          path: resolved[i].status === "fulfilled" ? normalizePath(resolved[i].value) : item.path,
         }))
       );
     }
@@ -285,7 +236,7 @@ export function FileExplorer() {
   // ── Navigation helpers ─────────────────────────────────────────────────────
 
   function navigateTo(path: string) {
-    const p = normPath(path);
+    const p = normalizePath(path);
     setHistory((prev) => {
       const next = prev.slice(0, historyIdx + 1);
       next.push(p);
@@ -324,6 +275,11 @@ export function FileExplorer() {
     setActiveSidebar(id);
     navigateTo(item.path);
   }
+
+  const visibleEntries = useMemo(
+    () => (showHidden ? entries : entries.filter((entry) => !entry.name.startsWith("."))),
+    [entries, showHidden],
+  );
 
   const canBack    = historyIdx > 0;
   const canForward = historyIdx < history.length - 1;
@@ -371,6 +327,14 @@ export function FileExplorer() {
           aria-label="Refresh"
         >
           <LuRefreshCw size={14} aria-hidden />
+        </button>
+        <button
+          className={`fe-toolbar-btn fe-toolbar-toggle${showHidden ? " active" : ""}`}
+          title={showHidden ? "Hide hidden files" : "Show hidden files"}
+          onClick={() => setShowHidden((value) => !value)}
+          aria-label={showHidden ? "Hide hidden files" : "Show hidden files"}
+        >
+          {showHidden ? <LuEye size={14} aria-hidden /> : <LuEyeOff size={14} aria-hidden />}
         </button>
 
         {/* Address breadcrumb */}
@@ -451,7 +415,7 @@ export function FileExplorer() {
           {/* View toggle bar */}
           <div className="fe-view-bar">
             <span className="fe-item-count">
-              {loading ? "Loading…" : `${entries.length} item${entries.length !== 1 ? "s" : ""}`}
+              {loading ? "Loading…" : `${visibleEntries.length} item${visibleEntries.length !== 1 ? "s" : ""}`}
             </span>
             <div className="fe-view-group" role="group" aria-label="View mode">
               <button
@@ -486,14 +450,14 @@ export function FileExplorer() {
               <div className="fe-empty" role="status">
                 <span className="fe-spinner" aria-label="Loading" />
               </div>
-            ) : entries.length === 0 ? (
+            ) : visibleEntries.length === 0 ? (
               <div className="fe-empty" role="status">
                 <LuFolderOpen size={48} aria-hidden />
-                <span>This folder is empty</span>
+                <span>{showHidden ? "This folder is empty" : "No visible items in this folder"}</span>
               </div>
             ) : view === "grid" ? (
               <div className="fe-grid" role="listbox" aria-label="Files and folders">
-                {entries.map((entry) => (
+                {visibleEntries.map((entry) => (
                   <button
                     key={entry.name}
                     className={`fe-grid-item${selected === entry.name ? " selected" : ""}`}
@@ -515,7 +479,7 @@ export function FileExplorer() {
                   <span className="fe-list-header-cell" role="columnheader">Date modified</span>
                   <span className="fe-list-header-cell" role="columnheader">Size</span>
                 </div>
-                {entries.map((entry) => (
+                {visibleEntries.map((entry) => (
                   <button
                     key={entry.name}
                     className={`fe-list-item${selected === entry.name ? " selected" : ""}`}
@@ -543,7 +507,7 @@ export function FileExplorer() {
 
           {/* Status bar */}
           <div className="fe-statusbar" role="status" aria-live="polite">
-            <span>{entries.length} item{entries.length !== 1 ? "s" : ""}</span>
+            <span>{visibleEntries.length} item{visibleEntries.length !== 1 ? "s" : ""}</span>
             {selected && (
               <span>
                 Selected: <strong>{selected}</strong>
