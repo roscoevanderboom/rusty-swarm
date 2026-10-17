@@ -40,7 +40,7 @@ import {
 import { vaultGetApiKey, vaultSetApiKey } from "../lib/secrets";
 import { AppearanceMode } from "../lib/theme";
 
-const APP_NAME = "rusty-hermes";
+const APP_NAME = "rusty-swarm";
 
 export interface SettingsModalProps {
   onClose: () => void;

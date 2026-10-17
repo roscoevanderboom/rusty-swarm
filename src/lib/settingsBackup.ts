@@ -12,7 +12,7 @@ import {
 } from "../types/schema";
 
 export const SETTINGS_FILE_VERSION = 1;
-export const SETTINGS_FILE_NAME = "rusty-hermes-settings.json";
+export const SETTINGS_FILE_NAME = "rusty-swarm-settings.json";
 
 export interface SettingsFile {
   app: string;
@@ -42,7 +42,7 @@ const LIMITS: Partial<Record<SettingKey, [number, number]>> = {
 
 export function serializeSettings(settings: Settings): string {
   const file: SettingsFile = {
-    app: "rusty-hermes",
+    app: "rusty-swarm",
     version: SETTINGS_FILE_VERSION,
     settings,
   };
@@ -85,11 +85,11 @@ export function parseSettingsFile(text: string): ImportResult {
     throw new Error("Not a JSON file.");
   }
   if (typeof raw !== "object" || raw === null || Array.isArray(raw))
-    throw new Error("Not a rusty-hermes settings file.");
+    throw new Error("Not a rusty-swarm settings file.");
 
   const root = raw as Record<string, unknown>;
-  if (root.app !== "rusty-hermes")
-    throw new Error("Not a rusty-hermes settings file.");
+  if (root.app !== "rusty-swarm" && root.app !== "rusty-hermes")
+    throw new Error("Not a rusty-swarm settings file.");
 
   const body = root.settings;
   if (typeof body !== "object" || body === null || Array.isArray(body))

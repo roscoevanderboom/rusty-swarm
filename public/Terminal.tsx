@@ -98,7 +98,7 @@ const BlockView = memo(function BlockView({ block, home }: { block: Block; home:
 function Welcome({ onRun }: { onRun: (command: string) => void }) {
   return (
     <div className="tm-welcome">
-      <div className="tm-welcome-title">rusty-hermes terminal</div>
+      <div className="tm-welcome-title">rusty-swarm terminal</div>
       <div className="tm-welcome-sub">
         Real {SHELL_NAME} commands, plus a few built-ins. Output stays above, you type below.
       </div>

@@ -381,7 +381,7 @@ fn html_listing(rel_path: &str, entries: &[Entry], token: &str) -> impl IntoResp
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>rusty-hermes · {title}</title>
+<title>rusty-swarm · {title}</title>
 <style>
   :root {{
     --bg: #0f172a; --surface: #1e293b; --border: #334155;
@@ -424,7 +424,7 @@ fn html_listing(rel_path: &str, entries: &[Entry], token: &str) -> impl IntoResp
 <body>
 <div class="shell">
   <header>
-    <span class="logo">rusty-hermes</span>
+    <span class="logo">rusty-swarm</span>
     <nav class="breadcrumbs">{breadcrumbs}</nav>
   </header>
   <div class="card">

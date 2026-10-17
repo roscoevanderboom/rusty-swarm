@@ -166,7 +166,7 @@ export const BUILTINS: Record<string, BuiltIn> = {
     description: "Show app and system info",
     async run({ print }) {
       const info = await getAppInfo();
-      print(`rusty-hermes  ${info.version}`);
+      print(`rusty-swarm  ${info.version}`);
       print(`tauri         ${info.tauri}`);
       print(`system        ${OS_NAME}`);
       print(`shell         ${SHELL_NAME}`);

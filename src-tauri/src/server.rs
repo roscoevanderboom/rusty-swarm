@@ -327,7 +327,7 @@ fn validate(key: &str, value: &Value) -> Result<(), ApiError> {
 async fn health() -> Json<Value> {
     Json(json!({
         "status": "ok",
-        "name": "rusty-hermes",
+        "name": "rusty-swarm",
         "version": env!("CARGO_PKG_VERSION"),
     }))
 }

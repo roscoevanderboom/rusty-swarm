@@ -45,7 +45,7 @@ fn show_toast(app: &tauri::AppHandle, title: String, body: String) -> Result<(),
         {
             let _ = &app;
             register_aumid();
-            tauri_winrt_notification::Toast::new("rusty-hermes")
+            tauri_winrt_notification::Toast::new("rusty-swarm")
                 .title(&title)
                 .text1(&body)
                 .show()
@@ -152,7 +152,7 @@ pub fn run() {
                 app.handle().plugin(tauri_plugin_cli::init())?;
                 tray::create(app.handle())?;
             }
-            notify(app.handle(), "rusty-hermes", "App loaded");
+            notify(app.handle(), "rusty-swarm", "App loaded");
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

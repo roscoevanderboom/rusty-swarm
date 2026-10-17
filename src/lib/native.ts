@@ -75,7 +75,7 @@ export async function ensureNotificationPermission() {
 export async function sendTestNotification() {
   if (!isTauri()) return;
   await invoke<void>("send_notification", {
-    title: "rusty-hermes",
+    title: "rusty-swarm",
     body: "Notifications are working.",
   });
 }
