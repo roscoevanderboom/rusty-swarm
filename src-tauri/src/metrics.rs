@@ -52,9 +52,6 @@ impl Default for MetricsState {
 }
 
 impl MetricsState {
-    pub fn sender(&self) -> broadcast::Sender<String> {
-        self.0.tx.clone()
-    }
 
     pub fn subscribe(&self) -> broadcast::Receiver<String> {
         self.0.tx.subscribe()
@@ -66,10 +63,6 @@ impl MetricsState {
 
     pub fn dec(&self) -> usize {
         self.0.subscribers.fetch_sub(1, Ordering::SeqCst).saturating_sub(1)
-    }
-
-    pub fn count(&self) -> usize {
-        self.0.subscribers.load(Ordering::SeqCst)
     }
 
     pub async fn ensure_sampler_running(&self) {
